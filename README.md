@@ -1,4 +1,4 @@
-# java_my_rmi
+# java_c_rpc_communication
 - 大学課題:JavaとCでRMIのサーバとクライアントを実装する
 
 ## 課題内容
