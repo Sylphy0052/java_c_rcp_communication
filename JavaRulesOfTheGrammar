@@ -1,0 +1,68 @@
+<stream> ::= <magic><version><contents>
+<magic> ::= <STREAD_MAGIC>
+<version> ::= <STREAM_VERSION>
+<contents> ::= <content> | <contents><content>
+<content> ::= <object> | <blockdata>
+<object> ::= <newObject> | <newClass> | <newArray> | <newString> | <newEnum> | <newClassDesc> | <prevObject> | <nullReference> | <exception> | <TC_RESET>
+<blockdata> ::= <blockdatashort> | <blockdatalong>
+<blockdatashort> ::= <TC_BLOCKDATA> <(unsigned byte)<size>><(byte)[size]>
+<blockdatalong> ::= <TC_BLOCKDATALONG><(int)<size>><(byte)[size]>
+<newObject> ::= <TC_OBJECT><classDesc><newHandle><classdata[]>
+<classdata> ::= <nowrclass> | <wrclass><objectAnnotation> | <externalContents> | <objectAnnotation>
+<norclass> ::= <values>
+<values> ::
+<wrclass> ::= <nowrclass>
+<externalContents> ::= <externalContent> | <externalContents><externalContent>
+<externalContent> ::= <(bytes)> | <object>
+<objectAnnotation> ::= <endBlockData> | <contents><endBlockData>
+<endBlockData> ::= <TC_ENDBLOCKDATA>
+<newClass> ::= <TC_CLASS><classDesc><newHandle>
+<classDesc> ::= <newClassDesc> | <nullReference> | <(ClassDesc)prevObject>
+<newHandle> ::
+<newArray> ::= <TC_ARRAY><classDesc><newHandle><(int)<size>><values[size]>
+<newString> ::= <TC_STRING><newHandle><(utf)> | <TC_LONGSTRING><newHandle><(long-utf)>
+<newEnum> ::= <TC_ENUM><classDesc><newHandle><enumConstantName>
+<enumConstantName> ::= <(String)object>
+<newClassDesc> ::= <TC_CLASSDESC><className><serialVersionUID><newHandle><classDescInfo> | <TC_PROXYCLASSDESC><newHandle><proxyClassDescInfo>
+<className> ::= <(utf)>
+<serialVersionUID> ::= <(long)>
+<classDescInfo> ::= <classDescFlags><fields><classAnnotation><superClassDesc>
+<classDescFlags> ::= <(byte)>
+<fields> ::= <(short)<count>><fieldDesc[count]>
+<classAnnotation> ::= <endBlockData> | <contents><endBlockData>
+<fieldDesc> ::= <primitiveDesc> | <objectDesc>
+<primitiveDesc> ::= <prim_typecode><fieldName>
+<prim_typecode> ::= 'B'(byte) | 'C'(char) | 'D'(double) | 'F'(float) | 'I'(integer) | 'J'(long) | 'S'(short) | 'Z'(boolean)
+<fieldName> ::= <(utf)>
+<objectDesc> ::= <obj_typecode><fieldName><className1>
+<obj_typecode> ::= '['(array) | 'L'(object)
+<className1> ::= <(String)object>
+<proxyClassDescInfo> ::= <(int)<count>><proxyInterfaceName[count]><classAnnotation> | <superClassDesc>
+<proxyInterfaceName> ::= <(utf)>
+<prevObject> ::= <TC_REFERENCE><(int)handle>
+<nullReference> ::= <TC_NULL> = (byte)0x70
+<exception> ::= <TC_EXCEPTION><reset><(Throwable)object><reset>
+<reset> ::
+
+---
+定数
+---
+
+STREAM_MAGIC = (short)0xaced;
+STREAM_VERSION = 5;
+TC_NULL = (byte)0x70;
+TC_REFERENCE = (byte)0x71;
+TC_CLASSDESC = (byte)0x72;
+TC_OBJECT = (byte)0x73;
+TC_STRING = (byte)0x74;
+TC_ARRAY = (byte)0x75;
+TC_CLASS = (byte)0x76;
+TC_BLOCKDATA = (byte)0x77;
+TC_ENDBLOCKDATA = (byte)0x78;
+TC_RESET = (byte)0x79;
+TC_BLOCKDATALONG = (byte)0x7A;
+TC_EXCEPTION = (byte)0x7B;
+TC_LONGSTRING = (byte) 0x7C;
+TC_PROXYCLASSDESC = (byte) 0x7D;
+TC_ENUM = (byte) 0x7E;
+// baseWireHandle = 0x7E0000;
