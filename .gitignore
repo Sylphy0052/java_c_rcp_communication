@@ -1,1 +1,6 @@
 *.class
+client/client
+client/CMakeCache.txt
+client/CMakeFiles/*
+client/cmake_install.cmake
+client/Makefile

@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.io.IOException;
 
 public class Server {
     private static int PORT = 4444;
@@ -21,9 +22,13 @@ public class Server {
                 if(serverSocket != null) {
                     serverSocket.close();
                 }
-            } catch(IOExcception e) {
+            } catch(IOException e) {
 
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Server server = new Server();
     }
 }
