@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "parser.h"
 
 int hexDump (char *desc, void *addr, int len, int progcount) {
