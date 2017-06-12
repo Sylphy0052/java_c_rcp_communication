@@ -34,7 +34,6 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
 
     // recvしない
     while((len = recv(sock, buf, sizeof(buf), 0)) != 0) {
-        printf("A\n");
         if(len < 0) {
             free(buf);
             printf("recv error!\n");
