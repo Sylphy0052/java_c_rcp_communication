@@ -32,7 +32,6 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     int len;
     unsigned char *buf = malloc(sizeof(unsigned char) * 64);
 
-    // recvしない
     while((len = recv(sock, buf, sizeof(buf), 0)) != 0) {
         if(len < 0) {
             free(buf);

@@ -2,14 +2,15 @@
 
 #include "hexdump.h"
 
-void hexdump(char *desc, unsigned char *pc, size_t len) {
+size_t hexdump(char *desc, unsigned char *bytes, size_t len, size_t pc) {
     int i;
+    size_t result_pc = pc;
     unsigned char buff[17];
     if(desc != NULL)
         printf("%s:\n", desc);
         if(len == 0) {
     printf("  ZERO LENGTH\n");
-    return;
+    return -1;
     }
 
     for (i = 0; i < len; i++) {
@@ -19,11 +20,11 @@ void hexdump(char *desc, unsigned char *pc, size_t len) {
             }
             printf("  %04x ", i);
         }
-        printf(" %02x", pc[i]);
-        if((pc[i] < 0x20) || (pc[i] > 0x7e)) {
+        printf(" %02x", bytes[i]);
+        if((bytes[i] < 0x20) || (bytes[i] > 0x7e)) {
             buff[i % 16] = '.';
         } else {
-            buff[i % 16] = pc[i];
+            buff[i % 16] = bytes[i];
         }
         buff[(i % 16) + 1] = '\0';
     }
@@ -32,4 +33,5 @@ void hexdump(char *desc, unsigned char *pc, size_t len) {
         i++;
     }
     printf ("  %s\n", buff);
+    return (pc + len);
 }

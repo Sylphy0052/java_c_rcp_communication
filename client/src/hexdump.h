@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-void hexdump(char *desc, unsigned char *pc, size_t len);
+size_t hexdump(char *desc, unsigned char *bytes, size_t len, size_t pc);
 
 #endif
