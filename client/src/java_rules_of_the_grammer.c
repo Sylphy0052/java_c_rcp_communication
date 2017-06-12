@@ -51,41 +51,128 @@ void hexdump(char *desc, size_t len) {
     printf ("  %s\n", buff);
 }
 
-unsigned char read_n_byte(size_t len) {
-    unsigned char *result = malloc(sizeof(unsigned char) * len);
-    int i;
-    for(i = pc; i < len; i++) {
-        result[i - pc] = b[i];
+// unsigned char read_n_byte(size_t len) {
+//     unsigned char *result = malloc(sizeof(unsigned char) * len);
+//     int i;
+//     for(i = pc; i < len; i++) {
+//         result[i - pc] = b[i];
+//     }
+//     printf("result[0] : %02x, b[pc] : %02x\n", result[0], b[pc]);
+//     pc += len;
+//     return result;
+// }
+
+void analyze_classname() {
+    // utf
+}
+
+void analyze_serialversionuid() {
+    // long
+}
+
+void analyze_newhandle() {
+    // The next number in sequence is assigned
+    // to the object being serialized or deserialized
+}
+
+void analyze_classdescinfo() {
+    // classDescFlags fields classAnnotation superClassDesc 
+}
+
+void analyze_newclassdesc() {
+    switch(b[pc++]) {
+    case TC_CLASSDESC:
+        analyze_classname();
+        analyze_serialversionuid();
+        analyze_newhandle();
+        analyze_classdescinfo();
+    case TC_PROXYCLASSDESC:
+        printf("undefined\n");
     }
-    pc += len;
-    return result;
 }
 
-struct magic analyze_magic() {
-    struct magic m;
-    m.stread_magic = read_n_byte(2);
+void analyze_classdesc() {
+    printf("analyze_classdesc\n");
+    switch(b[pc]) {
+    // newClassDesc | nullReference | (ClassDesc)prevObject
+    case TC_CLASSDESC:
+        analyze_newclassdesc();
+        break;
+    default:
+        printf("undefined\n");
+    }
+}
+
+void analyze_newhandle() {
+    printf("analyze_newhandle\n");
+}
+
+void analyze_value() {
+    printf("analyze_value\n");
+}
+
+void analyze_newobject() {
+    printf("analyze_newobject\n");
+    analyze_classdesc();
+    analyze_newhandle();
+    analyze_value();
+}
+
+void analyze_blockdata() {
+    printf("analyze_blockdata\n");
+}
+
+void analyze_object() {
+    printf("analyze_object\n");
+    switch(b[pc++]) {
+    case TC_OBJECT:
+        analyze_newobject();
+        break;
+    default:
+        printf("undefined\n");
+    }
+}
+
+void analyze_magic() {
+    // struct magic m;
+    // m.stread_magic = malloc(sizeof(unsigned char) * 2);
+    // m.stread_magic[0] = b[pc++];
+    // m.stread_magic[1] = b[pc++];
+    // m.stread_magic = read_n_byte(2);
+    pc += 2;
     hexdump("magic", 2);
-    return m;
+    // return m;
 }
 
-struct version analyze_version() {
-    struct version v;
-    v.stream_version = read_n_byte(2);
+void analyze_version() {
+    // struct version v;
+    // v.stream_version = read_n_byte(2);
+    pc += 2;
     hexdump("version", 2);
-    return v;
+    // return v;
 }
 
-struct contents analyze_contents() {
-    struct contents c;
-    return c;
+void analyze_contents() {
+    // struct contents c;
+    // unsigned char *next_data = read_n_byte(1);
+    // printf("pc : %d, next : %02x\n", pc, next_data);
+    switch(b[pc]) {
+    case TC_BLOCKDATA:
+    case TC_BLOCKDATALONG:
+        analyze_blockdata();
+        break;
+    default:
+        analyze_object();
+        break;
+    }
+    // return c;
 }
 
-struct stream analyze_stream() {
-    struct stream s;
-    s.m = analyze_magic();
-    s.v = analyze_version();
-    s.c = analyze_contents();
-    return s;
+void analyze_stream() {
+    analyze_magic();
+    analyze_version();
+    analyze_contents();
+    // return s;
 }
 
 void analyze_grammer(unsigned char *bytes, size_t len) {
@@ -93,7 +180,6 @@ void analyze_grammer(unsigned char *bytes, size_t len) {
     b = bytes;
     pc = 0;
     hexdump("hexdump", len);
-    pc = 0;
-    struct stream s;
-    s = analyze_stream();
+    // struct stream s;
+    analyze_stream();
 }
