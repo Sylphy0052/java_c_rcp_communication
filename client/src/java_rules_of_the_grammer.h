@@ -25,6 +25,7 @@
 #define TC_LONGSTRING  0x7C
 #define TC_PROXYCLASSDESC 0x7D
 #define TC_ENUM 0x7E
+#define BASE_WIRE_HANDLE 0x7E0000
 
 struct classname {
     char *name;
@@ -51,8 +52,20 @@ struct primitivedesc {
     struct fieldname fn;
 };
 
-struct objectdesc {
+struct objtypecode {
+    unsigned char *code;
+};
 
+struct classname1 {
+    // <(String)object>
+    struct object *o;
+};
+
+struct objectdesc {
+    // <objectDesc> ::= <obj_typecode><fieldName><className1>
+    struct objtypecode otc;
+    struct fieldname fn;
+    struct classname1 cn1;
 };
 
 struct fielddesc {
@@ -127,11 +140,17 @@ struct newclass {
 };
 
 struct newarray {
-
+    // <TC_ARRAY><classDesc><newHandle><(int)<size>><values[size]>
+    // struct classdesc cd;
+    // struct newhandle nh;
+    // int s;
+    // struct values v;
 };
 
 struct newstring {
-
+    // <newString> ::= <TC_STRING><newHandle><(utf)> | <TC_LONGSTRING><newHandle><(long-utf)>
+    struct newhandle nh;
+    unsigned char *utf;
 };
 
 struct newenum {
@@ -187,29 +206,36 @@ struct stream {
 };
 
 void hexdump(const char *desc, const unsigned char *pc, const size_t len);
-char *read_nibble(unsigned char *bytes);
-char *read_n_byte(unsigned char *bytes, size_t len);
-size_t analyze_classname(struct classname *cn, unsigned char *bytes);
-size_t analyze_serialversionuid(struct serialversionuid *uid, unsigned char *bytes);
-size_t analyze_classdescflags(struct classdescflags *cdf, unsigned char *bytes);
-size_t analyze_primtypecode(struct primtypecode *ptc, unsigned char *bytes);
-size_t analyze_fieldname(struct fieldname *fn, unsigned char *bytes);
-size_t analyze_premitivedesc(struct primitivedesc *pd, unsigned char *bytes);
-size_t analyze_fielddesc(struct fielddesc *fd, unsigned char *bytes, struct fielddesc *prev);
-size_t analyze_fields(struct fields *f, unsigned char *bytes);
-size_t analyze_classannotation(struct classannotation *ca, unsigned char *bytes);
-size_t analyze_superclassdesc(struct superclassdesc *scd, unsigned char *bytes);
-size_t analyze_classdescinfo(struct classdescinfo *cdi, unsigned char *bytes);
-size_t analyze_newclassdesc(struct newclassdesc *ncd, unsigned char *bytes);
-size_t analyze_classdesc(struct classdesc *cd, unsigned char *bytes);
-size_t analyze_newhandle(struct newhandle *nh, unsigned char *bytes);
-size_t analyze_newobject(struct newobject *no, unsigned char *bytes);
-size_t analyze_object(struct object *o, unsigned char *bytes);
-size_t analyze_content(struct content *c, unsigned char *byte);
-size_t analyze_magic(struct magic *m, unsigned char *bytes);
-size_t analyze_version(struct version *v, unsigned char *bytes);
-size_t analyze_contents(struct contents *c, unsigned char *bytes, size_t len);
-void analyze_stream(struct stream *s, unsigned char *bytes, size_t len);
-void analyze_grammer(unsigned char *bytes, size_t len);
+char *read_nibble(const unsigned char *bytes);
+char *read_n_byte(const unsigned char *bytes, size_t len);
+size_t analyze_classname(struct classname *cn, const unsigned char *bytes);
+size_t analyze_serialversionuid(struct serialversionuid *uid, const unsigned char *bytes);
+size_t analyze_classdescflags(struct classdescflags *cdf, const unsigned char *bytes);
+size_t analyze_primtypecode(struct primtypecode *ptc, const unsigned char *bytes);
+size_t analyze_fieldname(struct fieldname *fn, const unsigned char *bytes);
+size_t analyze_premitivedesc(struct primitivedesc *pd, const unsigned char *bytes);
+size_t analyze_objtypecode(struct objtypecode *otc, const unsigned char *bytes);
+size_t analyze_classname1(struct classname1 cn1, const unsigned char *bytes);
+size_t analyze_objectdesc(struct objectdesc *od, const unsigned char *bytes);
+size_t analyze_fielddesc(struct fielddesc *fd, const unsigned char *bytes, struct fielddesc *prev);
+size_t analyze_fields(struct fields *f, const unsigned char *bytes);
+size_t analyze_classannotation(struct classannotation *ca, const unsigned char *bytes);
+size_t analyze_superclassdesc(struct superclassdesc *scd, const unsigned char *bytes);
+void analyze_newhandle_ncd(struct newclassdesc *ncd);
+size_t analyze_classdescinfo(struct classdescinfo *cdi, const unsigned char *bytes);
+size_t analyze_newclassdesc(struct newclassdesc *ncd, const unsigned char *bytes);
+size_t analyze_classdesc(struct classdesc *cd, const unsigned char *bytes);
+void analyze_newhandle_no(struct newobject *no);
+size_t analyze_newobject(struct newobject *no, const unsigned char *bytes);
+void analyze_newhandle_ns(struct newstring *ns);
+size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes);
+size_t analyze_prevobject(struct prevobject *c, const unsigned char *bytes);
+size_t analyze_object(struct object *o, const unsigned char *bytes);
+size_t analyze_content(struct content *c, const unsigned char *byte);
+size_t analyze_magic(struct magic *m, const unsigned char *bytes);
+size_t analyze_version(struct version *v, const unsigned char *bytes);
+size_t analyze_contents(struct contents *c, const unsigned char *bytes, size_t len);
+void analyze_stream(struct stream *s, const unsigned char *bytes, size_t len);
+void analyze_grammer(const unsigned char *bytes, size_t len);
 
 #endif

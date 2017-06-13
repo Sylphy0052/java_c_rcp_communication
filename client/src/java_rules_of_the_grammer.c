@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "java_rules_of_the_grammer.h"
+#include "handle.h"
 
 // void hexdump(char *desc, size_t len) {
 //     int i;
@@ -79,7 +81,7 @@ void hexdump(const char *desc, const unsigned char *pc, const size_t len) {
 
 
 
-// unsigned char read_n_byte(unsigned char *bytes, size_t len) {
+// unsigned char read_n_byte(const unsigned char *bytes, size_t len) {
 //     unsigned char *result = malloc(sizeof(unsigned char) * len);
 //     int i;
 //     for(i = pc; i < len; i++) {
@@ -185,13 +187,7 @@ void hexdump(const char *desc, const unsigned char *pc, const size_t len) {
 //     }
 // }
 
-char *read_nibble(unsigned char *bytes) {
-    unsigned char *ret = malloc(sizeof(unsigned char));
-    ret = bytes[0] >> 4;
-    return ret;
-}
-
-char *read_n_byte(unsigned char *bytes, size_t len) {
+char *read_n_byte(const unsigned char *bytes, size_t len) {
     int i;
     char *ret = malloc(sizeof(char) * (len + 1));
     for(i = 0; i < len; i++) {
@@ -201,7 +197,7 @@ char *read_n_byte(unsigned char *bytes, size_t len) {
     return ret;
 }
 
-size_t analyze_classname(struct classname *cn, unsigned char *bytes) {
+size_t analyze_classname(struct classname *cn, const unsigned char *bytes) {
     size_t len = 0;
     cn = malloc(sizeof(struct classname));
     // utf
@@ -218,7 +214,7 @@ size_t analyze_classname(struct classname *cn, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_serialversionuid(struct serialversionuid *uid, unsigned char *bytes) {
+size_t analyze_serialversionuid(struct serialversionuid *uid, const unsigned char *bytes) {
     size_t len = 0;
     // long
     unsigned long id;
@@ -232,23 +228,23 @@ size_t analyze_serialversionuid(struct serialversionuid *uid, unsigned char *byt
     return len;
 }
 
-size_t analyze_classdescflags(struct classdescflags *cdf, unsigned char *bytes) {
+size_t analyze_classdescflags(struct classdescflags *cdf, const unsigned char *bytes) {
     size_t len = 0;
     cdf = malloc(sizeof(struct classdescflags));
-    cdf->b = bytes[len++];
-    hexdump("classdescflags", &cdf->b, 1);
+    cdf->b = &bytes[len++];
+    hexdump("classdescflags", cdf->b, 1);
     return len;
 }
 
-size_t analyze_primtypecode(struct primtypecode *ptc, unsigned char *bytes) {
+size_t analyze_primtypecode(struct primtypecode *ptc, const unsigned char *bytes) {
     size_t len = 0;
     ptc = malloc(sizeof(struct primtypecode));
-    ptc = bytes[len++];
-    printf("prim_type code : %s\n", &ptc);
+    ptc->code = bytes[len++];
+    printf("prim_type_code : %s\n", ptc);
     return len;
 }
 
-size_t analyze_fieldname(struct fieldname *fn, unsigned char *bytes) {
+size_t analyze_fieldname(struct fieldname *fn, const unsigned char *bytes) {
     size_t len = 0;
     fn = malloc(sizeof(struct fieldname));
     // utf
@@ -263,7 +259,7 @@ size_t analyze_fieldname(struct fieldname *fn, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_premitivedesc(struct primitivedesc *pd, unsigned char *bytes) {
+size_t analyze_premitivedesc(struct primitivedesc *pd, const unsigned char *bytes) {
     size_t len = 0;
     pd = malloc(sizeof(struct primitivedesc));
     len += analyze_primtypecode(&pd->ptc, &bytes[len]);
@@ -271,11 +267,39 @@ size_t analyze_premitivedesc(struct primitivedesc *pd, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_fielddesc(struct fielddesc *fd, unsigned char *bytes, struct fielddesc *prevfd) {
+size_t analyze_objtypecode(struct objtypecode *otc, const unsigned char *bytes) {
+    size_t len = 0;
+    otc = malloc(sizeof(struct objtypecode));
+    otc->code = bytes[len++];
+    printf("obj_type_code : %s\n", otc);
+    return len;
+}
+
+size_t analyze_classname1(struct classname1 cn1, const unsigned char *bytes) {
+    size_t len = 0;
+    // cn1 = malloc(sizeof(struct classname1));
+    len += analyze_object(cn1.o, &bytes[len]);
+    return len;
+}
+
+size_t analyze_objectdesc(struct objectdesc *od, const unsigned char *bytes) {
+    size_t len = 0;
+    od = malloc(sizeof(struct objectdesc));
+    len += analyze_objtypecode(&od->otc, &bytes[len]);
+    len += analyze_fieldname(&od->fn, &bytes[len]);
+    len += analyze_classname1(od->cn1, &bytes[len]);
+    return len;
+}
+
+size_t analyze_fielddesc(struct fielddesc *fd, const unsigned char *bytes, struct fielddesc *prevfd) {
     size_t len = 0;
     switch(bytes[len]) {
     case 'I': //Integer
+    case 'B': //Byte
         len += analyze_premitivedesc(&fd->u.pd, &bytes[len]);
+        break;
+    case 'L': //Object
+        len += analyze_objectdesc(&fd->u.od, &bytes[len]);
         break;
     default:
         hexdump("Undefined -fielddesc-", &bytes[len], 1);
@@ -284,15 +308,12 @@ size_t analyze_fielddesc(struct fielddesc *fd, unsigned char *bytes, struct fiel
     if(prevfd != NULL) {
         prevfd->next = fd;
     }
+    printf("after fd len : %d\n", len);
     return len;
 }
 
-// void fielddesc_next() {
-//
-// }
-
-size_t analyze_fields(struct fields *f, unsigned char *bytes) {
-    int len = 0;
+size_t analyze_fields(struct fields *f, const unsigned char *bytes) {
+    size_t len = 0;
     f = malloc(sizeof(struct fields));
     unsigned short count;
     count = (bytes[len++] << 8) + bytes[len++];
@@ -301,31 +322,33 @@ size_t analyze_fields(struct fields *f, unsigned char *bytes) {
     struct fielddesc *prevfd = malloc(sizeof(struct fielddesc));
     struct fielddesc *fd = malloc(sizeof(struct fielddesc));
     prevfd = NULL;
-    for(int i = 0; i < count; i++) {
-        printf("i : %d / len : %d\n", i, len);
-        len += analyze_fielddesc(&fd, &bytes[len], &prevfd);
+    for(size_t i = 0; i < f->count; i++) {
+        len = len + analyze_fielddesc(&fd, &bytes[len], prevfd);
         prevfd = fd;
-        printf("i : %d / len : %d\n", i, len);
     }
-    printf("fields fin\n");
     return len;
 }
 
-size_t analyze_classannotation(struct classannotation *ca, unsigned char *bytes) {
+size_t analyze_classannotation(struct classannotation *ca, const unsigned char *bytes) {
     size_t len = 0;
     ca = malloc(sizeof(struct classannotation));
 
     return len;
 }
 
-size_t analyze_superclassdesc(struct superclassdesc *scd, unsigned char *bytes) {
+size_t analyze_superclassdesc(struct superclassdesc *scd, const unsigned char *bytes) {
     size_t len = 0;
     scd = malloc(sizeof(struct superclassdesc));
 
     return len;
 }
 
-size_t analyze_classdescinfo(struct classdescinfo *cdi, unsigned char *bytes) {
+void analyze_newhandle_ncd(struct newclassdesc *ncd) {
+    ncd->nh.handle = new_handle_ncd(ncd);
+    printf("newHandle_ncd : %x\n", ncd->nh.handle);
+}
+
+size_t analyze_classdescinfo(struct classdescinfo *cdi, const unsigned char *bytes) {
     size_t len = 0;
     cdi = malloc(sizeof(struct classdescinfo));
     len += analyze_classdescflags(&cdi->cdf, bytes);
@@ -335,7 +358,7 @@ size_t analyze_classdescinfo(struct classdescinfo *cdi, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_newclassdesc(struct newclassdesc *ncd, unsigned char *bytes) {
+size_t analyze_newclassdesc(struct newclassdesc *ncd, const unsigned char *bytes) {
     size_t len = 0;
     ncd = malloc(sizeof(struct newclassdesc));
     switch(bytes[0]) {
@@ -343,7 +366,7 @@ size_t analyze_newclassdesc(struct newclassdesc *ncd, unsigned char *bytes) {
         len++;
         len += analyze_classname(&ncd->cn, &bytes[len]);
         len += analyze_serialversionuid(&ncd->uid, &bytes[len]);
-        len += analyze_newhandle(&ncd->nh, &bytes[len]);
+        analyze_newhandle_ncd(ncd);
         len += analyze_classdescinfo(&ncd->cdi, &bytes[len]);
         break;
 
@@ -354,7 +377,7 @@ size_t analyze_newclassdesc(struct newclassdesc *ncd, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_classdesc(struct classdesc *cd, unsigned char *bytes) {
+size_t analyze_classdesc(struct classdesc *cd, const unsigned char *bytes) {
     size_t len = 0;
     cd = malloc(sizeof(struct classdesc));
     switch(bytes[0]) {
@@ -368,26 +391,61 @@ size_t analyze_classdesc(struct classdesc *cd, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_newhandle(struct newhandle *nh, unsigned char *bytes) {
-    size_t len = 0;
-    nh = malloc(sizeof(struct newhandle));
-    nh->handle = read_nibble(bytes);
-    return len;
+void analyze_newhandle_no(struct newobject *no) {
+    // printf("newHandle_no : %x\n", no->nh.handle);
+    printf("newHandle_no\n");
 }
 
-size_t analyze_newobject(struct newobject *no, unsigned char *bytes) {
+size_t analyze_newobject(struct newobject *no, const unsigned char *bytes) {
     size_t len = 0;
     no = malloc(sizeof(struct newobject));
     int i = 0;
     len += analyze_classdesc(&no->cd, bytes);
-    len += analyze_newhandle(&no->nh, &bytes[len]);
+    analyze_newhandle_no(no);
     // while(1) {
     //     len += analyze_classdata(no->cd[i++], &bytes[len]);
     // }
     return len;
 }
 
-size_t analyze_object(struct object *o, unsigned char *bytes) {
+void analyze_newhandle_ns(struct newstring *ns) {
+    // printf("newHandle_ns : %x\n", ns->nh.handle);
+    printf("newHandle_ns\n");
+}
+
+size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes) {
+    size_t len = 0;
+    ns = malloc(sizeof(struct newstring));
+    switch(bytes[len++]) {
+    case TC_STRING:
+        analyze_newhandle_ns(ns);
+        // utf
+        size_t handler_len = 0;
+        for(int i = 0; i < UTF_LENGTH; i++) {
+            handler_len <<= BYTE_LENGTH;
+            handler_len += bytes[len++];
+        }
+        ns->utf = read_n_byte(&bytes[len], handler_len);
+        hexdump("newstring utf", ns->utf, handler_len);
+        len += handler_len;
+        break;
+    case TC_LONGSTRING:
+        break;
+    default:
+        hexdump("Undefined -newstring-", bytes, 1);
+    }
+    return len;
+}
+
+size_t analyze_prevobject(struct prevobject *c, const unsigned char *bytes) {
+    size_t len = 0;
+    c = malloc(sizeof(struct prevobject));
+    printf("analyze_prevobject\n");
+    return len;
+}
+
+
+size_t analyze_object(struct object *o, const unsigned char *bytes) {
     size_t len = 0;
     o = malloc(sizeof(struct object));
     switch(bytes[0]) {
@@ -395,7 +453,13 @@ size_t analyze_object(struct object *o, unsigned char *bytes) {
         len = analyze_newobject(&o->u.no, &bytes[1]);
         len++;
         break;
-
+    case TC_STRING:
+        len = analyze_newstring(&o->u.ns, &bytes[len]);
+        break;
+    case TC_REFERENCE:
+        len = analyze_prevobject(&o->u.po, &bytes[1]);
+        len++;
+        break;
     // case TC_RESET:
 
     default:
@@ -405,7 +469,7 @@ size_t analyze_object(struct object *o, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_content(struct content *c, unsigned char *bytes) {
+size_t analyze_content(struct content *c, const unsigned char *bytes) {
     size_t len = 0;
     switch(bytes[0]) {
     case TC_OBJECT:
@@ -424,7 +488,7 @@ size_t analyze_content(struct content *c, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_magic(struct magic *m, unsigned char *bytes) {
+size_t analyze_magic(struct magic *m, const unsigned char *bytes) {
     size_t len = 2;
     m->stread_magic = malloc(sizeof(unsigned char) * len);
     memcpy(m->stread_magic, bytes, len);
@@ -432,7 +496,7 @@ size_t analyze_magic(struct magic *m, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_version(struct version *v, unsigned char *bytes) {
+size_t analyze_version(struct version *v, const unsigned char *bytes) {
     size_t len = 2;
     v->stream_version = malloc(sizeof(unsigned char) * len);
     memcpy(v->stream_version, bytes, len);
@@ -440,34 +504,25 @@ size_t analyze_version(struct version *v, unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_contents(struct contents *c, unsigned char *bytes, size_t len) {
-    int i = 0;
+size_t analyze_contents(struct contents *c, const unsigned char *bytes, size_t len) {
     size_t ret = 0;
-    switch(bytes[ret]) {
-    case TC_OBJECT:
-        c = malloc(sizeof(struct contents));
-        ret += analyze_content(&c->c, &bytes[ret]);
-        break;
-    default:
-        hexdump("Undefined -contents-", &bytes[ret], 1);
-        break;
+    c = malloc(sizeof(struct contents));
+    while(ret < len) {
+        switch(bytes[ret]) {
+        case TC_OBJECT:
+        case TC_REFERENCE:
+            ret += analyze_content(&c->c, &bytes[ret]);
+            break;
+        default:
+            hexdump("Undefined -contents-", &bytes[ret], 1);
+            exit(1);
+            break;
+        }
     }
-
-    // while(ret < len) {
-    //     switch(bytes[ret]) {
-    //     case TC_OBJECT:
-    //         c = malloc(sizeof(struct contents));
-    //         ret += analyze_content(&c->c[i++], &bytes[ret]);
-    //         break;
-    //     default:
-    //         printf("Undefined -contents- : %02x\n", &bytes[ret]);
-    //         break;
-    //     }
-    // }
     return ret;
 }
 
-void analyze_stream(struct stream *s, unsigned char *bytes, size_t len) {
+void analyze_stream(struct stream *s, const unsigned char *bytes, size_t len) {
     size_t pc = 0;
     pc += analyze_magic(&s->m, bytes);
     pc += analyze_version(&s->v, &bytes[pc]);
@@ -475,7 +530,7 @@ void analyze_stream(struct stream *s, unsigned char *bytes, size_t len) {
     // return s;
 }
 
-void analyze_grammer(unsigned char *bytes, size_t len) {
+void analyze_grammer(const unsigned char *bytes, size_t len) {
     struct stream *s = malloc(sizeof(struct stream));
     hexdump("hexdump", bytes, len);
     // struct stream s;
