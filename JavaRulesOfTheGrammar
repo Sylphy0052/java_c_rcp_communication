@@ -1,47 +1,102 @@
 <stream> ::= <magic><version><contents>
+    -> STREAD_MAGIC
 <magic> ::= <STREAD_MAGIC>
+    -> STREAD_MAGIC
 <version> ::= <STREAM_VERSION>
+    -> STREAM_VERSION
 <contents> ::= <content> | <contents><content>
+    ->
 <content> ::= <object> | <blockdata>
+    ->
+
 <object> ::= <newObject> | <newClass> | <newArray> | <newString> | <newEnum> | <newClassDesc> | <prevObject> | <nullReference> | <exception> | <TC_RESET>
+
 <blockdata> ::= <blockdatashort> | <blockdatalong>
+
 <blockdatashort> ::= <TC_BLOCKDATA> <(unsigned byte)<size>><(byte)[size]>
+    -> TC_BLOCKDATA
+
 <blockdatalong> ::= <TC_BLOCKDATALONG><(int)<size>><(byte)[size]>
+    -> TC_BLOCKDATA
+
 <newObject> ::= <TC_OBJECT><classDesc><newHandle><classdata[]>
+    -> TC_OBJECT
+
 <classdata> ::= <nowrclass> | <wrclass><objectAnnotation> | <externalContents> | <objectAnnotation>
+
 <norclass> ::= <values>
+
 <values> ::
+
 <wrclass> ::= <nowrclass>
+
 <externalContents> ::= <externalContent> | <externalContents><externalContent>
+
 <externalContent> ::= <(bytes)> | <object>
-<objectAnnotation> ::= <endBlockData> | <contents><endBlockData>
+
 <endBlockData> ::= <TC_ENDBLOCKDATA>
+    -> TC_ENDBLOCKDATA
+
 <newClass> ::= <TC_CLASS><classDesc><newHandle>
+    -> TC_CLASS
+
 <classDesc> ::= <newClassDesc> | <nullReference> | <(ClassDesc)prevObject>
+
 <newHandle> ::
+
 <newArray> ::= <TC_ARRAY><classDesc><newHandle><(int)<size>><values[size]>
+    -> TC_ARRAY
+
 <newString> ::= <TC_STRING><newHandle><(utf)> | <TC_LONGSTRING><newHandle><(long-utf)>
+    -> TC_STRING
+
 <newEnum> ::= <TC_ENUM><classDesc><newHandle><enumConstantName>
+    -> TC_ENUM
+
 <enumConstantName> ::= <(String)object>
+
 <newClassDesc> ::= <TC_CLASSDESC><className><serialVersionUID><newHandle><classDescInfo> | <TC_PROXYCLASSDESC><newHandle><proxyClassDescInfo>
+    -> TC_CLASSDESC / TC_PROXYCLASSDESC
+
 <className> ::= <(utf)>
+
 <serialVersionUID> ::= <(long)>
+
 <classDescInfo> ::= <classDescFlags><fields><classAnnotation><superClassDesc>
+
 <classDescFlags> ::= <(byte)>
+
 <fields> ::= <(short)<count>><fieldDesc[count]>
+
 <classAnnotation> ::= <endBlockData> | <contents><endBlockData>
+
 <fieldDesc> ::= <primitiveDesc> | <objectDesc>
+
 <primitiveDesc> ::= <prim_typecode><fieldName>
+
 <prim_typecode> ::= 'B'(byte) | 'C'(char) | 'D'(double) | 'F'(float) | 'I'(integer) | 'J'(long) | 'S'(short) | 'Z'(boolean)
+
 <fieldName> ::= <(utf)>
+
 <objectDesc> ::= <obj_typecode><fieldName><className1>
+
 <obj_typecode> ::= '['(array) | 'L'(object)
+
 <className1> ::= <(String)object>
+
 <proxyClassDescInfo> ::= <(int)<count>><proxyInterfaceName[count]><classAnnotation> | <superClassDesc>
+
 <proxyInterfaceName> ::= <(utf)>
+
 <prevObject> ::= <TC_REFERENCE><(int)handle>
-<nullReference> ::= <TC_NULL> = (byte)0x70
+    -> TC_REFERENCE
+
+<nullReference> ::= <TC_NULL>
+    -> TC_NULL
+
 <exception> ::= <TC_EXCEPTION><reset><(Throwable)object><reset>
+    -> TC_EXCEPTION
+
 <reset> ::
 
 ---
