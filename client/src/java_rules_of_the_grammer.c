@@ -277,6 +277,7 @@ size_t analyze_objtypecode(struct objtypecode *otc, const unsigned char *bytes) 
 
 size_t analyze_classname1(struct classname1 cn1, const unsigned char *bytes) {
     size_t len = 0;
+    printf("classname1\n");
     // cn1 = malloc(sizeof(struct classname1));
     len += analyze_object(cn1.o, &bytes[len]);
     return len;
@@ -308,7 +309,6 @@ size_t analyze_fielddesc(struct fielddesc *fd, const unsigned char *bytes, struc
     if(prevfd != NULL) {
         prevfd->next = fd;
     }
-    printf("after fd len : %d\n", len);
     return len;
 }
 
@@ -332,14 +332,27 @@ size_t analyze_fields(struct fields *f, const unsigned char *bytes) {
 size_t analyze_classannotation(struct classannotation *ca, const unsigned char *bytes) {
     size_t len = 0;
     ca = malloc(sizeof(struct classannotation));
-
+    printf("classannotation\n");
+    switch(bytes[len]) {
+    case TC_ENDBLOCKDATA:
+        printf("END_BLOCKDATA\n");
+        len++;
+        break;
+    default:
+        // len += analyze_contents(&ca->c, &bytes[len]);
+        // printf("END_BLOCKDATA\n");
+        // len++;
+        hexdump("Undefined -classannotation-", &bytes[len], 1);
+        break;
+    }
     return len;
 }
 
 size_t analyze_superclassdesc(struct superclassdesc *scd, const unsigned char *bytes) {
     size_t len = 0;
     scd = malloc(sizeof(struct superclassdesc));
-
+    printf("analyze_superclassdesc\n");
+    // scd->cd =
     return len;
 }
 
@@ -393,7 +406,8 @@ size_t analyze_classdesc(struct classdesc *cd, const unsigned char *bytes) {
 
 void analyze_newhandle_no(struct newobject *no) {
     // printf("newHandle_no : %x\n", no->nh.handle);
-    printf("newHandle_no\n");
+    no->nh.handle = new_handle_no(no);
+    printf("newHandle_no : %x\n", no->nh.handle);
 }
 
 size_t analyze_newobject(struct newobject *no, const unsigned char *bytes) {
@@ -410,7 +424,8 @@ size_t analyze_newobject(struct newobject *no, const unsigned char *bytes) {
 
 void analyze_newhandle_ns(struct newstring *ns) {
     // printf("newHandle_ns : %x\n", ns->nh.handle);
-    printf("newHandle_ns\n");
+    ns->nh.handle = new_handle_ns(ns);
+    printf("newHandle_ns : %x\n", ns->nh.handle);
 }
 
 size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes) {
@@ -437,10 +452,17 @@ size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes) {
     return len;
 }
 
-size_t analyze_prevobject(struct prevobject *c, const unsigned char *bytes) {
+size_t analyze_prevobject(struct prevobject *po, const unsigned char *bytes) {
     size_t len = 0;
-    c = malloc(sizeof(struct prevobject));
-    printf("analyze_prevobject\n");
+    po = malloc(sizeof(struct prevobject));
+    // int
+    unsigned int handle = 0;
+    for(int i = 0; i < 4; i++) {
+        handle <<= BYTE_LENGTH;
+        handle += bytes[len++];
+    }
+    printf("handle : %x\n", handle);
+    po->h = gethandle(handle);
     return len;
 }
 
@@ -477,12 +499,16 @@ size_t analyze_content(struct content *c, const unsigned char *bytes) {
         len = analyze_object(&c->u.o, bytes);
         break;
 
+    case TC_REFERENCE:
+        printf("TC_REFERENCE\n");
+        break;
+
     // case TC_BLOCKDATA:
     // case TC_BLOCKDATALONG:
     //     len = analyze_blockdata(s->b, bytes);
     //     break;
     default:
-        hexdump("Undefined -content-", bytes, 1);
+        hexdump("Undefined -content-", bytes, 5);
         break;
     }
     return len;
@@ -508,6 +534,7 @@ size_t analyze_contents(struct contents *c, const unsigned char *bytes, size_t l
     size_t ret = 0;
     c = malloc(sizeof(struct contents));
     while(ret < len) {
+        printf("analyze_contents\n");
         switch(bytes[ret]) {
         case TC_OBJECT:
         case TC_REFERENCE:

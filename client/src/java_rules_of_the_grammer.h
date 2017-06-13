@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "handle.h"
+
 #define UTF_LENGTH 2
 #define BYTE_LENGTH 8
 #define UID_LENGTH 8
@@ -83,11 +85,11 @@ struct fields {
 };
 
 struct classannotation {
-
+    struct contents *c;
 };
 
 struct superclassdesc {
-
+    struct classdesc *cd;
 };
 
 struct classdescinfo {
@@ -113,7 +115,7 @@ struct nullreference {
 };
 
 struct prevobject {
-
+    struct handle *h;
 };
 
 struct classdesc {
@@ -229,7 +231,7 @@ void analyze_newhandle_no(struct newobject *no);
 size_t analyze_newobject(struct newobject *no, const unsigned char *bytes);
 void analyze_newhandle_ns(struct newstring *ns);
 size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes);
-size_t analyze_prevobject(struct prevobject *c, const unsigned char *bytes);
+size_t analyze_prevobject(struct prevobject *po, const unsigned char *bytes);
 size_t analyze_object(struct object *o, const unsigned char *bytes);
 size_t analyze_content(struct content *c, const unsigned char *byte);
 size_t analyze_magic(struct magic *m, const unsigned char *bytes);
