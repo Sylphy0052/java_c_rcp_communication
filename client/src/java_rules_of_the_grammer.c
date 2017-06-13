@@ -297,7 +297,7 @@ size_t analyze_fields(struct fields *f, unsigned char *bytes) {
     unsigned short count;
     count = (bytes[len++] << 8) + bytes[len++];
     f->count = count;
-    printf("count : %d\n", f->count);
+    printf("count : %d\n", count);
     struct fielddesc *prevfd = malloc(sizeof(struct fielddesc));
     struct fielddesc *fd = malloc(sizeof(struct fielddesc));
     prevfd = NULL;
@@ -305,6 +305,7 @@ size_t analyze_fields(struct fields *f, unsigned char *bytes) {
         printf("i : %d / len : %d\n", i, len);
         len += analyze_fielddesc(&fd, &bytes[len], &prevfd);
         prevfd = fd;
+        printf("i : %d / len : %d\n", i, len);
     }
     printf("fields fin\n");
     return len;
@@ -383,6 +384,7 @@ size_t analyze_newobject(struct newobject *no, unsigned char *bytes) {
     // while(1) {
     //     len += analyze_classdata(no->cd[i++], &bytes[len]);
     // }
+    return len;
 }
 
 size_t analyze_object(struct object *o, unsigned char *bytes) {
