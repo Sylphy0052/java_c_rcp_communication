@@ -24,7 +24,7 @@
 
 <classdata> ::= <nowrclass> | <wrclass><objectAnnotation> | <externalContents> | <objectAnnotation>
 
-<norclass> ::= <values>
+<nowrclass> ::= <values>
 
 <values> ::
 

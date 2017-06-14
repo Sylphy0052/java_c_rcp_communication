@@ -5,10 +5,15 @@
 #include "src/mysocket.h"
 #include "src/mystruct.h"
 #include "src/parser.h"
+#include "src/java_rules_of_the_grammer.h"
+#include "src/task.h"
 
 int main(int argc, char const *argv[]) {
     int sock = connect_socket();
     struct byte_struct recv_bytes = send_and_receive_socket(sock, "Get Task\n");
-    parse(recv_bytes);
+    struct stream s = parse(recv_bytes);
+    struct task t = convert_task(s);
+    show_task(t);
+    printf("fin\n");
     return 0;
 }

@@ -29,6 +29,9 @@
 #define TC_ENUM 0x7E
 #define BASE_WIRE_HANDLE 0x7E0000
 
+#define PRIMITIVE 0x00
+#define OBJECT 0x01
+
 struct classname {
     char *name;
 };
@@ -71,6 +74,7 @@ struct objectdesc {
 };
 
 struct fielddesc {
+    unsigned char type;
     union {
         struct primitivedesc pd;
         struct objectdesc od;
@@ -81,7 +85,7 @@ struct fielddesc {
 struct fields {
     // <(short)<count>><fieldDesc[count]>
     unsigned short count;
-    struct fielddesc fd;
+    struct fielddesc *fd;
 };
 
 struct classannotation {
@@ -110,10 +114,6 @@ struct newclassdesc {
     struct classdescinfo cdi;
 };
 
-struct nullreference {
-
-};
-
 struct prevobject {
     struct handle *h;
 };
@@ -121,13 +121,53 @@ struct prevobject {
 struct classdesc {
     union {
         struct newclassdesc ncd;
-        struct nullreference nr;
         struct prevobject po;
     } u;
 };
 
-struct classdata {
+struct nowrclass {
+    unsigned char *values;
+};
 
+struct wrclass {
+    struct nowrclass uc;
+};
+
+struct externalcontent {
+    // (bytes) | object
+    unsigned char *next;
+};
+
+struct externalcontents {
+    struct externalcontent ec;
+};
+
+struct objectannotation {
+    // endBlockData | contents endBlockData
+    struct contents *c;
+};
+
+struct wrclass_t {
+    struct wrclass wc;
+    struct objectannotation oa;
+};
+
+struct classdata {
+    // <nowrclass> | <wrclass><objectAnnotation> | <externalContents> | <objectAnnotation>
+    // union {
+    //     struct nowrclass nc;
+    //     struct wrclass_t wct;
+    //     struct externalcontents ec;
+    //     struct objectannotation oa;
+    // } u;
+    union {
+        // int
+        int i;
+        // byte
+        char b;
+        // Object
+        struct object *o;
+    } u;
     struct classdata *next;
 };
 
@@ -172,7 +212,6 @@ struct object {
         struct newenum ne;
         struct newclassdesc ncd;
         struct prevobject po;
-        struct nullreference nr;
         struct exception e;
     } u;
 };
@@ -217,9 +256,9 @@ size_t analyze_primtypecode(struct primtypecode *ptc, const unsigned char *bytes
 size_t analyze_fieldname(struct fieldname *fn, const unsigned char *bytes);
 size_t analyze_premitivedesc(struct primitivedesc *pd, const unsigned char *bytes);
 size_t analyze_objtypecode(struct objtypecode *otc, const unsigned char *bytes);
-size_t analyze_classname1(struct classname1 cn1, const unsigned char *bytes);
+size_t analyze_classname1(struct classname1 *cn1, const unsigned char *bytes);
 size_t analyze_objectdesc(struct objectdesc *od, const unsigned char *bytes);
-size_t analyze_fielddesc(struct fielddesc *fd, const unsigned char *bytes, struct fielddesc *prev);
+size_t analyze_fielddesc(struct fielddesc **fd, const unsigned char *bytes);
 size_t analyze_fields(struct fields *f, const unsigned char *bytes);
 size_t analyze_classannotation(struct classannotation *ca, const unsigned char *bytes);
 size_t analyze_superclassdesc(struct superclassdesc *scd, const unsigned char *bytes);
@@ -228,6 +267,7 @@ size_t analyze_classdescinfo(struct classdescinfo *cdi, const unsigned char *byt
 size_t analyze_newclassdesc(struct newclassdesc *ncd, const unsigned char *bytes);
 size_t analyze_classdesc(struct classdesc *cd, const unsigned char *bytes);
 void analyze_newhandle_no(struct newobject *no);
+size_t analyze_classdata(struct classdata **cd, const unsigned char *bytes, struct fielddesc *fd);
 size_t analyze_newobject(struct newobject *no, const unsigned char *bytes);
 void analyze_newhandle_ns(struct newstring *ns);
 size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes);
@@ -238,6 +278,6 @@ size_t analyze_magic(struct magic *m, const unsigned char *bytes);
 size_t analyze_version(struct version *v, const unsigned char *bytes);
 size_t analyze_contents(struct contents *c, const unsigned char *bytes, size_t len);
 void analyze_stream(struct stream *s, const unsigned char *bytes, size_t len);
-void analyze_grammer(const unsigned char *bytes, size_t len);
+struct stream analyze_grammer(const unsigned char *bytes, size_t len);
 
 #endif

@@ -2,7 +2,8 @@
 #define PARSER_H
 
 #include "mystruct.h"
+#include "java_rules_of_the_grammer.h"
 
-void parse(struct byte_struct bytes_str);
+struct stream parse(struct byte_struct bytes_str);
 
 #endif
