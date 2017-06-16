@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "handle.h"
 #include "java_rules_of_the_grammer.h"
@@ -25,6 +26,7 @@ unsigned int new_handle_no(struct newobject *no) {
 }
 
 unsigned int new_handle_ns(struct newstring *ns) {
+    printf("new_handle_ns\n");
     struct handle *h_ns = malloc(sizeof(struct handle));
     h_ns->type = REGIST_NS;
     h_ns->u.ns = ns;

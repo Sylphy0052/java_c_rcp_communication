@@ -104,7 +104,7 @@ struct classdescinfo {
 };
 
 struct newhandle {
-    unsigned short handle;
+    unsigned int handle;
 };
 
 struct newclassdesc {

@@ -285,33 +285,6 @@ src/parser.c.s:
 	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/parser.c.s
 .PHONY : src/parser.c.s
 
-src/task.o: src/task.c.o
-
-.PHONY : src/task.o
-
-# target to build an object file
-src/task.c.o:
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/task.c.o
-.PHONY : src/task.c.o
-
-src/task.i: src/task.c.i
-
-.PHONY : src/task.i
-
-# target to preprocess a source file
-src/task.c.i:
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/task.c.i
-.PHONY : src/task.c.i
-
-src/task.s: src/task.c.s
-
-.PHONY : src/task.s
-
-# target to generate assembly for a file
-src/task.c.s:
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/src/task.c.s
-.PHONY : src/task.c.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -339,9 +312,6 @@ help:
 	@echo "... src/parser.o"
 	@echo "... src/parser.i"
 	@echo "... src/parser.s"
-	@echo "... src/task.o"
-	@echo "... src/task.i"
-	@echo "... src/task.s"
 .PHONY : help
 
 

@@ -21,6 +21,8 @@ src/task.h
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/handle.c
 stdio.h
 -
+stdlib.h
+-
 handle.h
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/handle.h
 java_rules_of_the_grammer.h
@@ -32,6 +34,8 @@ java_rules_of_the_grammer.h
 
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/java_rules_of_the_grammer.c
 stdio.h
+-
+stdlib.h
 -
 string.h
 -
@@ -81,14 +85,6 @@ mystruct.h
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/mystruct.h
 java_rules_of_the_grammer.h
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/java_rules_of_the_grammer.h
-
-/Users/Kento/GitHub/java_c_rpc_communication/client/src/task.c
-string.h
--
-java_rules_of_the_grammer.h
-/Users/Kento/GitHub/java_c_rpc_communication/client/src/java_rules_of_the_grammer.h
-task.h
-/Users/Kento/GitHub/java_c_rpc_communication/client/src/task.h
 
 /Users/Kento/GitHub/java_c_rpc_communication/client/src/task.h
 

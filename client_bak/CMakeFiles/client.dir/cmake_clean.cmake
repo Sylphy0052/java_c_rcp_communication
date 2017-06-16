@@ -5,7 +5,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/client.dir/src/parser.c.o"
   "CMakeFiles/client.dir/src/java_rules_of_the_grammer.c.o"
   "CMakeFiles/client.dir/src/handle.c.o"
-  "CMakeFiles/client.dir/src/task.c.o"
   "client.pdb"
   "client"
 )

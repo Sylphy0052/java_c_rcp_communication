@@ -9,5 +9,4 @@ add_executable(client
     src/parser.c
     src/java_rules_of_the_grammer.c
     src/handle.c
-    src/task.c
 )

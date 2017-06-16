@@ -30,8 +30,3 @@ CMakeFiles/client.dir/src/parser.c.o: src/mystruct.h
 CMakeFiles/client.dir/src/parser.c.o: src/parser.c
 CMakeFiles/client.dir/src/parser.c.o: src/parser.h
 
-CMakeFiles/client.dir/src/task.c.o: src/handle.h
-CMakeFiles/client.dir/src/task.c.o: src/java_rules_of_the_grammer.h
-CMakeFiles/client.dir/src/task.c.o: src/task.c
-CMakeFiles/client.dir/src/task.c.o: src/task.h
-

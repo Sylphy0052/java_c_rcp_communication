@@ -10,7 +10,6 @@ set(CMAKE_DEPENDS_CHECK_C
   "/Users/Kento/GitHub/java_c_rpc_communication/client/src/mysocket.c" "/Users/Kento/GitHub/java_c_rpc_communication/client/CMakeFiles/client.dir/src/mysocket.c.o"
   "/Users/Kento/GitHub/java_c_rpc_communication/client/src/mystruct.c" "/Users/Kento/GitHub/java_c_rpc_communication/client/CMakeFiles/client.dir/src/mystruct.c.o"
   "/Users/Kento/GitHub/java_c_rpc_communication/client/src/parser.c" "/Users/Kento/GitHub/java_c_rpc_communication/client/CMakeFiles/client.dir/src/parser.c.o"
-  "/Users/Kento/GitHub/java_c_rpc_communication/client/src/task.c" "/Users/Kento/GitHub/java_c_rpc_communication/client/CMakeFiles/client.dir/src/task.c.o"
   )
 set(CMAKE_C_COMPILER_ID "Clang")
 
