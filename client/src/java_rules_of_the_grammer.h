@@ -29,6 +29,12 @@
 #define TC_ENUM 0x7E
 #define BASE_WIRE_HANDLE 0x7E0000
 
+#define SC_WRITE_METHOD 0x01 //if SC_SERIALIZABLE
+#define SC_BLOCK_DATA 0x08    //if SC_EXTERNALIZABLE
+#define SC_SERIALIZABLE 0x02
+#define SC_EXTERNALIZABLE 0x04
+#define SC_ENUM 0x10
+
 #define PRIMITIVE 0x00
 #define OBJECT 0x01
 
@@ -154,12 +160,6 @@ struct wrclass_t {
 
 struct classdata {
     // <nowrclass> | <wrclass><objectAnnotation> | <externalContents> | <objectAnnotation>
-    // union {
-    //     struct nowrclass nc;
-    //     struct wrclass_t wct;
-    //     struct externalcontents ec;
-    //     struct objectannotation oa;
-    // } u;
     union {
         // int
         int i;
@@ -192,7 +192,7 @@ struct newarray {
 struct newstring {
     // <newString> ::= <TC_STRING><newHandle><(utf)> | <TC_LONGSTRING><newHandle><(long-utf)>
     struct newhandle nh;
-    unsigned char *utf;
+    char *utf;
 };
 
 struct newenum {

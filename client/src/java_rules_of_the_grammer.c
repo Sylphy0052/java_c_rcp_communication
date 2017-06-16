@@ -73,14 +73,12 @@ size_t analyze_serialversionuid(struct serialversionuid *uid, const unsigned cha
 size_t analyze_classdescflags(struct classdescflags *cdf, const unsigned char *bytes) {
     size_t len = 1;
     cdf->b = read_n_byte(&bytes[0], len);
-    // cdf->b = bytes[len++];
     return len;
 }
 
 size_t analyze_primtypecode(struct primtypecode *ptc, const unsigned char *bytes) {
     size_t len = 1;
     ptc->code = read_n_byte(&bytes[0], len);
-    // ptc->code = bytes[len++];
     printf("prim_type_code : %s\n", ptc->code);
     return len;
 }
@@ -109,7 +107,6 @@ size_t analyze_premitivedesc(struct primitivedesc *pd, const unsigned char *byte
 size_t analyze_objtypecode(struct objtypecode *otc, const unsigned char *bytes) {
     size_t len = 1;
     otc->code = read_n_byte(&bytes[0], len);
-    // otc->code = bytes[len++];
     printf("obj_type_code : %s\n", otc->code);
     return len;
 }
@@ -281,7 +278,6 @@ size_t analyze_classdata(struct classdata **cds, const unsigned char *bytes, str
         break;
     case 'L':
         len += analyze_object(&cds_->u.o, &bytes[len]);
-        printf("classdata str : %s\n", cds_->u.o->u.ns.utf);
         break;
     default:
         hexdump("Undefined -classdata-", bytes, 1);
@@ -311,7 +307,6 @@ size_t analyze_newobject(struct newobject *no, const unsigned char *bytes) {
         len += analyze_classdata(&no->cds, &bytes[len], fd);
         fd = fd->next;
     }
-    printf("newobject str : %s\n", no->cds->next->next->u.o->u.ns.utf);
     return len;
 }
 
@@ -327,14 +322,12 @@ size_t analyze_newstring(struct newstring *ns, const unsigned char *bytes) {
         analyze_newhandle_ns(ns);
         // utf
         size_t handler_len = 0;
-        hexdump("newstring", &bytes[len], 20);
         for(int i = 0; i < UTF_LENGTH; i++) {
             handler_len <<= BYTE_LENGTH;
             handler_len += bytes[len++];
         }
         printf("handler_len : %zu\n", handler_len);
         ns->utf = read_n_byte(&bytes[len], handler_len);
-        printf("===%s\n", ns->utf);
         len += handler_len;
         break;
     case TC_LONGSTRING:
@@ -370,7 +363,6 @@ size_t analyze_object(struct object **o, const unsigned char *bytes) {
         break;
     case TC_STRING:
         len = analyze_newstring(&o_->u.ns, &bytes[len]);
-        printf("===object str : %s\n", o_->u.ns.utf);
         break;
     case TC_REFERENCE:
         len = analyze_prevobject(&o_->u.po, &bytes[1]);
@@ -387,7 +379,6 @@ size_t analyze_object(struct object **o, const unsigned char *bytes) {
 }
 
 size_t analyze_content(struct content *c, const unsigned char *bytes) {
-    // printf("content\n");
     size_t len = 0;
     switch(bytes[0]) {
     case TC_OBJECT:
@@ -445,10 +436,8 @@ size_t analyze_contents(struct contents **c, const unsigned char *bytes, size_t 
 
 void analyze_stream(struct stream **s, const unsigned char *bytes, size_t len) {
     struct stream *s_ = *s = malloc(sizeof(struct stream));
-    // printf("stream\n");
     size_t pc = 0;
     pc += analyze_magic(&s_->m, bytes);
-    hexdump("magic", s_->m.stread_magic, 2);
     pc += analyze_version(&s_->v, &bytes[pc]);
     pc += analyze_contents(&s_->c, &bytes[pc], len - pc);
 }
@@ -456,7 +445,6 @@ void analyze_stream(struct stream **s, const unsigned char *bytes, size_t len) {
 struct stream analyze_grammer(const unsigned char *bytes, size_t len) {
     struct stream *s;
     hexdump("hexdump", bytes, len);
-    // struct stream s;
     analyze_stream(&s, bytes, len);
     return *s;
 }

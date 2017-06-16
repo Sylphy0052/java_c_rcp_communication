@@ -1,7 +1,11 @@
 #include <netinet/in.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "mysocket.h"
 #include "mystruct.h"
+#include "task.h"
+#include "person.h"
 
 #define PORT 4444
 
@@ -48,4 +52,15 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     close(sock);
     struct byte_struct bytes = list_to_bytes(b_list);
     return bytes;
+}
+
+// void send_socket(int sock, char *order) {
+//
+// }
+
+void send_person(int sock, char *order, struct person *p) {
+    struct send_data sd = create_send_person(p);
+    struct byte_struct bytes = serialize(sd);
+    // send_socket(sock, order, bytes);
+
 }

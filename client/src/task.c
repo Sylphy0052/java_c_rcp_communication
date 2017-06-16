@@ -5,18 +5,14 @@
 
 void convert_task(struct stream *s, struct task *t) {
     // struct fielddesc *fd = s->c.c.u.o.u.no.cd.u.ncd.cdi.f.fd;
-    struct classdata *cds = s->c.c.u.o.u.no.cds;
+    struct classdata *cds = s->c->c.u.o->u.no.cds;
     t->v = cds->u.i;
-    printf("integer : 0x%x\n", cds->u.i);
     cds = cds->next;
-    printf("byte : %x\n", cds->u.b);
     t->x = cds->u.b;
     cds = cds->next;
     t->str1 = cds->u.o->u.ns.utf;
-    printf("str1 : %s\n", cds->u.o->u.ns.utf);
     cds = cds->next;
     t->str2 = cds->u.o->u.ns.utf;
-    printf("str2 : %s\n", cds->u.o->u.ns.utf);
 
     // while(fd != NULL && cds != NULL) {
         // printf("name : %s\n", fd->u.pd.fn.name);
@@ -41,6 +37,7 @@ void convert_task(struct stream *s, struct task *t) {
 }
 
 void show_task(struct task *t) {
+    printf("===show task===\n");
     printf("v: 0x%x\n", t->v);
     printf("x: %d\n", t->x);
     printf("str1: %s\n", t->str1);
