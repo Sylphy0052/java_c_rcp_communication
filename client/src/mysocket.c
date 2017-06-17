@@ -6,8 +6,9 @@
 #include "mystruct.h"
 #include "task.h"
 #include "person.h"
+#include "serialize.h"
 
-#define PORT 4444
+#define PORT 4000
 
 int connect_socket() {
     struct sockaddr_in addr;
@@ -27,7 +28,9 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     memset(command, '\0', order_length);
     strcat(command, order);
     size_t command_length = strlen(command);
+    printf("%s : %zu\n", command, order_length);
 
+    // send(sock, command, command_length, 0);
     send(sock, command, command_length, 0);
     free(command);
     struct byte_list b_list = init_byte_list();
@@ -35,7 +38,7 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     size_t sum = 0;
     int len;
     unsigned char *buf = malloc(sizeof(unsigned char) * 64);
-
+    printf("recv\n");
     while((len = recv(sock, buf, sizeof(buf), 0)) != 0) {
         if(len < 0) {
             free(buf);
@@ -54,13 +57,26 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     return bytes;
 }
 
-// void send_socket(int sock, char *order) {
-//
-// }
+void send_socket(char *order, char *method, struct byte_struct bytes) {
+    size_t len = strlen(order) + strlen(method);
+    char *command = malloc(sizeof(char) * len);
+    memset(command, '\0', len);
+    strcat(command, order);
+    strcat(command, " ");
+    strcat(command, method);
+    struct byte_struct bytes_len = bytes_from_int(bytes.len);
 
-void send_person(int sock, char *order, struct person *p) {
+    int sock = connect_socket();
+    send(sock, command, len, 0);
+    send(sock, bytes_len.contents, bytes_len.len, 0);
+    send(sock, bytes.contents, bytes.len, 0);
+    send(sock, '\n', 1, 0);
+    free(command);
+    close(sock);
+}
+
+void send_person(char *order, struct person *p) {
     struct send_data sd = create_send_person(p);
     struct byte_struct bytes = serialize(sd);
-    // send_socket(sock, order, bytes);
-
+    send_socket(order, "hello\n ", bytes);
 }

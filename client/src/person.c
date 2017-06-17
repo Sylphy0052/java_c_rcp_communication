@@ -22,16 +22,22 @@ char *return_str(char *str) {
 }
 
 struct send_data create_send_person(struct person *p) {
-    struct send_data sd;
-    sd.type = TC_OBJECT;
-    sd.name = return_str("Person");
-    sd.uid = PERSON_SERIAL_VERSION;
-    sd.flag = SC_SERIALIZABLE;
-    sd.f.d.sd.type = TC_STRING;
-    sd.f.d.sd.name = return_str("Ljava/lang/String;");
-    sd.f.sd.type = "L";
-    sd.f.sd.name = return_str("name");
-    sd.d.sd.type = "TC_STRING";
-    sd.d.sd.name = return_str(p->name);
-    return sd;
+    struct send_data *sd = malloc(sizeof(struct send_data));
+    sd->type = TC_OBJECT;
+    sd->name = return_str("Person");
+    sd->uid = PERSON_SERIAL_VERSION;
+    sd->flag = SC_SERIALIZABLE;
+    struct send_data *fd = malloc(sizeof(struct send_data));
+    sd->f.d.sd = fd;
+    fd->type = TC_STRING;
+    fd->name = return_str("Ljava/lang/String;");
+    struct send_data *f = malloc(sizeof(struct send_data));
+    sd->f.sd = f;
+    f->type = 'L';
+    f->name = return_str("name");
+    struct send_data *d = malloc(sizeof(struct send_data));
+    sd->d.sd = d;
+    d->type = TC_STRING;
+    d->name = return_str(p->name);
+    return *sd;
 }

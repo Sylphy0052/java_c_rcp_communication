@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     show_task(t);
     struct person *p = malloc(sizeof(struct person));
     convert_person(p, t);
-    send_person(sock, "Call Task\n", p);
+    send_person("Call Task", p);
     printf("fin\n");
     return 0;
 }

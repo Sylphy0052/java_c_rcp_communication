@@ -3,7 +3,7 @@ import java.net.*;
 import java.io.IOException;
 
 public class Server {
-    private static int PORT = 4444;
+    private static int PORT = 4000;
 
     private Server() {
         ServerSocket serverSocket = null;
@@ -23,7 +23,7 @@ public class Server {
                     serverSocket.close();
                 }
             } catch(IOException e) {
-
+                e.printStackTrace();
             }
         }
     }

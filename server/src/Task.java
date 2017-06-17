@@ -5,7 +5,7 @@ public class Task implements Serializable {
 
     public int v = 0x12345678;
     public String str1 = "Hello";
-    public String str2 = "world";
+    public String str2 = "japan";
     public byte x = 1;
 
     public void hello(Person p) {
