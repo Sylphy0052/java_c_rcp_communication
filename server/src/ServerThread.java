@@ -12,7 +12,7 @@ class ServerThread extends Thread {
         this.socket = socket;
         System.out.println("Connected to client!");
         services = new HashMap<String, Object>();
-    services.put("Task", new Task());
+        services.put("Task", new Task());
     }
 
     public void run() {

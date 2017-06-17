@@ -61,22 +61,17 @@ struct byte_struct bytes_from_string(char *str) {
 }
 
 void serialize_fieldname(struct byteb_list *b_list, struct send_field *f) {
-    printf("fieldname\n");
     add_byte_to_list(bytes_from_string(f->sd->name), b_list);
 }
 
 void serialize_object_field(struct byte_list *b_list, struct send_field *f) {
-    printf("object_field\n");
     add_byte_to_list(bytes_from_char(f->d.sd->type), b_list);
     switch(f->d.sd->type) {
     case TC_OBJECT:
         serialize_newobject(b_list, f->sd);
         break;
-  // case TC_REFERENCE:
-  //   break;
     case TC_STRING:
         serialize_newstring(b_list, f->d.sd);
-        printf("object_field : %s\n", f->d.sd->name);
         break;
     default:
         hexdump("Undefined -object-", &f->sd->type, 1);
@@ -84,12 +79,10 @@ void serialize_object_field(struct byte_list *b_list, struct send_field *f) {
 }
 
 void serialize_classname1(struct byteb_list *b_list, struct send_field *f) {
-    printf("classname1\n");
     serialize_object_field(b_list, f);
 }
 
 void serialize_fielddesc(struct byteb_list *b_list, struct send_field *f) {
-    printf("fielddesc\n");
     add_byte_to_list(bytes_from_char(f->sd->type), b_list);
     switch(f->sd->type) {
         case 'L':
@@ -100,12 +93,10 @@ void serialize_fielddesc(struct byteb_list *b_list, struct send_field *f) {
 }
 
 void serialize_classdescflags(struct byte_list *b_list, struct send_data *sd) {
-    printf("classdescflags\n");
     add_byte_to_list(bytes_from_char(sd->flag), b_list);
 }
 
 void serialize_fields(struct byte_list *b_list, struct send_data *sd) {
-    printf("fields\n");
     unsigned short len = 0;
     struct send_field *f = &sd->f;
     len++;
@@ -114,27 +105,22 @@ void serialize_fields(struct byte_list *b_list, struct send_data *sd) {
 }
 
 void serialize_classannotation(struct byte_list *b_list, struct send_data *sd) {
-    printf("classannotation\n");
     add_byte_to_list(bytes_from_char(TC_ENDBLOCKDATA), b_list);
 }
 
 void serialize_superclassdesc(struct byte_list *b_list, struct send_data *sd) {
-    printf("superclassdesc\n");
     serialize_classdesc(b_list, NULL);
 }
 
 void serialize_classname(struct byte_list *b_list, struct send_data *sd) {
-    printf("classname\n");
     add_byte_to_list(bytes_from_string(sd->name), b_list);
 }
 
 void serialize_serialversionuid(struct byte_list *b_list, struct send_data *sd) {
-    printf("serialversionuid\n");
     add_byte_to_list(bytes_from_long(sd->uid), b_list);
 }
 
 void serialize_classdescinfo(struct byte_list *b_list, struct send_data *sd) {
-    printf("classdescinfo\n");
     serialize_classdescflags(b_list, sd);
     serialize_fields(b_list, sd);
     serialize_classannotation(b_list, sd);
@@ -142,27 +128,21 @@ void serialize_classdescinfo(struct byte_list *b_list, struct send_data *sd) {
 }
 
 void serialize_nullreference(struct byte_list *b_list, struct send_data *sd) {
-    printf("serialize_nullreference\n");
     add_byte_to_list(bytes_from_char(TC_NULL), b_list);
 }
 
 void serialize_newclassdesc(struct byte_list *b_list, struct send_data *sd) {
-    printf("newclassdesc\n");
     add_byte_to_list(bytes_from_char(TC_CLASSDESC), b_list);
-    printf("classname : %s\n", sd->name);
     serialize_classname(b_list, sd);
     serialize_serialversionuid(b_list, sd);
     serialize_classdescinfo(b_list, sd);
 }
 
 void serialize_classdesc(struct byte_list *b_list, struct send_data *sd) {
-    printf("classdesc\n");
     if(sd == NULL) {
-        printf("NULL\n");
         serialize_nullreference(b_list, sd);
     } else {
         serialize_newclassdesc(b_list, sd);
-        printf("ret serialize_classdesc\n");
     }
 }
 
@@ -180,25 +160,20 @@ void serialize_classdata(struct byte_list *b_list, struct send_data *sd) {
 }
 
 void serialize_newobject(struct byte_list *b_list, struct send_data *sd) {
-    printf("newobject\n");
     serialize_classdesc(b_list, sd);
     serialize_classdata(b_list, sd);
 }
 
 void serialize_newstring(struct byte_list *b_list, struct send_data *sd) {
-    printf("newstring\n");
     add_byte_to_list(bytes_from_string(sd->name), b_list);
 }
 
 void serialize_object(struct byte_list *b_list, struct send_data *sd) {
-    printf("object\n");
     add_byte_to_list(bytes_from_char(sd->type), b_list);
     switch(sd->type) {
     case TC_OBJECT:
         serialize_newobject(b_list, sd);
         break;
-  // case TC_REFERENCE:
-  //   break;
     case TC_STRING:
         serialize_newstring(b_list, sd);
         break;

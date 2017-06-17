@@ -1,5 +1,7 @@
-#include <netinet/in.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <string.h>
 
 #include "mysocket.h"
@@ -28,9 +30,7 @@ struct byte_struct send_and_receive_socket(int sock, char *order) {
     memset(command, '\0', order_length);
     strcat(command, order);
     size_t command_length = strlen(command);
-    printf("%s : %zu\n", command, order_length);
 
-    // send(sock, command, command_length, 0);
     send(sock, command, command_length, 0);
     free(command);
     struct byte_list b_list = init_byte_list();
@@ -70,7 +70,6 @@ void send_socket(char *order, char *method, struct byte_struct bytes) {
     send(sock, command, len, 0);
     send(sock, bytes_len.contents, bytes_len.len, 0);
     send(sock, bytes.contents, bytes.len, 0);
-    send(sock, '\n', 1, 0);
     free(command);
     close(sock);
 }
